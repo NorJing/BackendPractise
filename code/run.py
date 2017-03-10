@@ -5,6 +5,8 @@ from activemq_queue.producer import Producer
 from db import CassandraInstance
 from time import sleep, time
 import threading
+import logging
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-10s) %(message)s')
 
 def producer_send(producer, message):
     producer.send(destination=QUEUE, body=message.encode())
@@ -14,6 +16,7 @@ def consumer_receive(consumer, cassandraInstance):
     consumer.ack(frame)
     cassandraInstance.write_one_row_from_queue("%s" % frame.body.decode())
     cassandraInstance.get_one_row()
+    logging.debug('Exiting')
 
 def consumer_receive_print(consumer):
     frame = consumer.receiveFrame()
@@ -37,7 +40,7 @@ if __name__ == '__main__':
     producer.connect()
 
     consumer_threads = []
-    for i in range(0, 500):
+    for i in range(0, 10):
         message = str(i) + "_" + str(round(time())*1000)
         sleep(0.01)
         # producer.send(destination=QUEUE, body=message.encode())
@@ -45,7 +48,7 @@ if __name__ == '__main__':
         producer_t.start()
 
     while consumer.canRead:  # Check that queue is empty.
-        consumer_t = threading.Thread(target=consumer_receive, args=(consumer, cassandraInstance))
+        consumer_t = threading.Thread(name="Consumer_thread", target=consumer_receive, args=(consumer, cassandraInstance))
         consumer_threads.append(consumer_t)
         consumer_t.start()
         consumer_t.join()
