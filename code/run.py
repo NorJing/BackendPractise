@@ -3,7 +3,7 @@ from stompest.protocol import StompSpec
 from activemq_queue.consumer import Consumer
 from activemq_queue.producer import Producer
 from db import CassandraInstance
-from time import sleep, time
+from time import time
 import threading
 import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-10s) %(message)s')
@@ -39,9 +39,8 @@ if __name__ == '__main__':
     producer = Producer(CONFIG)
     producer.connect()
 
-    for i in range(0, 5000):
+    for i in range(0, 10):
         message = str(i) + "_" + str(round(time())*1000)
-        sleep(0.01)
         producer_t = threading.Thread(target=producer_send, args=(producer, message))
         producer_t.start()
 
