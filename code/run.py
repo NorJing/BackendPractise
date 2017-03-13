@@ -39,28 +39,28 @@ if __name__ == '__main__':
     producer = Producer(CONFIG)
     producer.connect()
 
-    consumer_threads = []
-    for i in range(0, 10):
+    for i in range(0, 5000):
         message = str(i) + "_" + str(round(time())*1000)
         sleep(0.01)
-        # producer.send(destination=QUEUE, body=message.encode())
         producer_t = threading.Thread(target=producer_send, args=(producer, message))
         producer_t.start()
 
-    while consumer.canRead:  # Check that queue is empty.
-        consumer_t = threading.Thread(name="Consumer_thread", target=consumer_receive, args=(consumer, cassandraInstance))
-        consumer_threads.append(consumer_t)
+    i = 0
+    while consumer.canRead:
+        # consumer.canRead(0): Check that queue is empty.
+        consumer_t = threading.Thread(name="Consumer_thread_" + str(i), target=consumer_receive, args=(consumer, cassandraInstance))
+        consumer_t.setDaemon(True)
         consumer_t.start()
         consumer_t.join()
-
+        i += 1
         end_time = int(round(time()))
         total_time = end_time-start_time
         print("total_time=%d" % total_time)
 
-    # producer.disconnect()
-    # print("producer disconnect")
-    # consumer.disconnect()
-    # print("consumer disconnect")
+    producer.disconnect()
+    print("producer disconnect")
+    consumer.disconnect()
+    print("consumer disconnect")
 
     end_time = int(round(time()))
     print("end=%s" % end_time)

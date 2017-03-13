@@ -1,6 +1,6 @@
-import logging
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
+# import logging
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
 
 # from stompest.config import StompConfig
 from stompest.sync import Stomp
