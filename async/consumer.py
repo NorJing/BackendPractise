@@ -1,6 +1,6 @@
 import json
 import logging
-
+import time
 from twisted.internet import defer, reactor
 
 from stompest.config import StompConfig
@@ -8,7 +8,7 @@ from stompest.protocol import StompSpec
 
 from stompest.async import Stomp
 from stompest.async.listener import SubscriptionListener
-
+from zoolock.zoolockprocess import Zoolockprocess
 
 class Consumer(object):
     QUEUE = '/queue/adtest'
@@ -38,8 +38,14 @@ class Consumer(object):
         """
         data = json.loads(frame.body.decode())
         print('Received frame with count %d' % data['count'])
+        time.sleep(1)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
+    hosts = "c878jrn.int.thomsonreuters.com:2181, c965bhn.int.thomsonreuters.com:2181, c670ysk.int.thomsonreuters.com:2181"
+    lock_name = "lock"
+    process = Zoolockprocess(hosts, lock_name)
     Consumer().run()
     reactor.run()
+    process.release_lock()
+

@@ -22,8 +22,9 @@ class Producer(object):
         client = Stomp(self.config)
         yield client.connect()
         client.add(ReceiptListener(1.0))
-        for j in range(100000):
+        for j in range(1000):
             yield client.send(self.QUEUE, json.dumps({'count': j}).encode(), receipt='message-%d' % j)
+
         client.disconnect(receipt='bye')
         yield client.disconnected # graceful disconnect: waits until all receipts have arrived
 
